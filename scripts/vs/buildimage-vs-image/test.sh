@@ -9,18 +9,30 @@ tbname=vms-kvm-t0
 dut=vlab-01
 ptf_name=ptf_vms6-1
 
+if [[ ($1 -gt 1) ]]; then
+    MULTIASIC="multiasic-"
+    tbname=vms-kvm-multi-asic-t1-lag
+    dut=vlab-07
+    ptf_name=ptf-05
+else
+    MULTIASIC=""
+    tbname=vms-kvm-t0
+    dut=vlab-01
+    ptf_name=ptf_vms6-1
+fi
+
 docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWD sonicdev-microsoft.azurecr.io:443
 docker pull sonicdev-microsoft.azurecr.io:443/docker-sonic-mgmt:latest
 
 cat $VM_USER_PRIVATE_KEY > pkey.txt
 
 mkdir -p $HOME/sonic-vm/images
-if [ -e target/sonic-vs.img.gz ]; then
-    cp target/sonic-vs.img.gz $HOME/sonic-vm/images/
+if [ -e target/sonic-${MULTIASIC}vs.img.gz ]; then
+    cp target/sonic-${MULTIASIC}vs.img.gz $HOME/sonic-vm/images/
 else
-    sudo cp /nfs/jenkins/sonic-vs-${JOB_NAME##*/}.${BUILD_NUMBER}.img.gz $HOME/sonic-vm/images/sonic-vs.img.gz
+    sudo cp /nfs/jenkins/sonic-${MULTIASIC}vs-${JOB_NAME##*/}.${BUILD_NUMBER}.img.gz $HOME/sonic-vm/images/sonic-${MULTIASIC}vs.img.gz
 fi
-gzip -fd $HOME/sonic-vm/images/sonic-vs.img.gz
+gzip -fd $HOME/sonic-vm/images/sonic-${MULTIASIC}vs.img.gz
 
 ls -l $HOME/sonic-vm/images
 
